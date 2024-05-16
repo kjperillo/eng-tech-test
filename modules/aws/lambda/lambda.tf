@@ -1,11 +1,7 @@
-variable "tech_test_bucket_arn" {
-  type = string
-}
+# Description: Terraform module to create a Lambda function that will echo the contents of a file uploaded to an S3 bucket
 
-variable "tech_test_bucket_id" {
-  type = string
-}
 
+# Convenience data source to get the current AWS account ID
 data "aws_caller_identity" "current" {}
 
 # Zip file for Lambda function
@@ -15,9 +11,10 @@ data "archive_file" "lambda" {
   output_path = "${path.module}/code/file_echo.zip"
 }
 
+# IAM role for Lambda function
 resource "aws_iam_role" "file_echo_exec_role" {
   name = "file_echo_exec_role"
-  
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -46,34 +43,33 @@ resource "aws_iam_role" "file_echo_exec_role" {
           Resource = "*"
         },
         {
-            "Effect": "Allow",
-            "Action": [
-                "s3:Get*",
-                "s3:List*",
-                "s3:Describe*",
-                "s3-object-lambda:Get*",
-                "s3-object-lambda:List*"
-            ],
-            "Resource": "*"
+          "Effect" : "Allow",
+          "Action" : [
+            "s3:Get*",
+            "s3:List*",
+            "s3:Describe*",
+            "s3-object-lambda:Get*",
+            "s3-object-lambda:List*"
+          ],
+          "Resource" : "*"
         }
       ]
     })
   }
 }
 
+# Lambda function
 resource "aws_lambda_function" "s3_event_lambda" {
-  filename         = data.archive_file.lambda.output_path
-  function_name    = "s3_event_echo_file"
-  role             = aws_iam_role.file_echo_exec_role.arn
-  handler          = "file_echo.lambda_handler"
-  runtime          = "python3.12"
+  filename      = data.archive_file.lambda.output_path
+  function_name = "s3_event_echo_file"
+  role          = aws_iam_role.file_echo_exec_role.arn
+  handler       = "file_echo.lambda_handler"
+  runtime       = "python3.12"
 
-  tags = {
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
+# Allow S3 to invoke Lambda function
 resource "aws_lambda_permission" "allow_s3_to_invoke_lambda" {
   statement_id  = "AllowS3InvokeLambda"
   action        = "lambda:InvokeFunction"
@@ -82,6 +78,7 @@ resource "aws_lambda_permission" "allow_s3_to_invoke_lambda" {
   source_arn    = var.tech_test_bucket_arn
 }
 
+# S3 bucket notification
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = var.tech_test_bucket_id
 
@@ -92,6 +89,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
+# Update bucket policy to allow Lambda function to access bucket
 resource "aws_s3_bucket_policy" "update_bucket_policy" {
   bucket = var.tech_test_bucket_id
 
@@ -99,8 +97,8 @@ resource "aws_s3_bucket_policy" "update_bucket_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Deny"
-        Action = "s3:*"
+        Effect    = "Deny"
+        Action    = "s3:*"
         Principal = "*"
         Resource = [
           "${var.tech_test_bucket_arn}",

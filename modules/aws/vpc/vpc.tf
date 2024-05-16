@@ -1,46 +1,34 @@
+# Description: This Terraform file creates a VPC with a public and private subnet.
+
+# Create a VPC
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
-  
-  tags = {
-    Name    = "tech-test-vpc"
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+
+  tags = var.tags
 }
 
+# Create a public subnet
 resource "aws_subnet" "public" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone = "us-west-1b"  # Specify your preferred availability zone
+  availability_zone       = "us-west-1b" # Specify your preferred availability zone
 
-  tags = {
-    Name    = "public-subnet"
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-west-1b"  # Specify your preferred availability zone
+  availability_zone = "us-west-1b" # Specify your preferred availability zone
 
-  tags = {
-    Name    = "private-subnet"
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name    = "main-gateway"
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
 resource "aws_route_table" "public" {
@@ -51,11 +39,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags = {
-    Name    = "public-route-table"
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
 resource "aws_route_table_association" "public" {
@@ -66,11 +50,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name    = "private-route-table"
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
 resource "aws_route_table_association" "private" {

@@ -5,7 +5,7 @@ resource "azurerm_storage_account" "tech_test_sa" {
   location                 = var.rg_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  tags = var.tags
+  tags                     = var.tags
 }
 
 # Storage Container for Blob
@@ -28,10 +28,10 @@ data "azurerm_storage_account_sas" "tech_test_sas" {
   }
 
   services {
-    blob = true
+    blob  = true
     queue = false
     table = false
-    file = false
+    file  = false
   }
   permissions {
     read    = true
@@ -42,8 +42,8 @@ data "azurerm_storage_account_sas" "tech_test_sas" {
     create  = true
     update  = true
     process = true
-    filter = true
-    tag = true
+    filter  = true
+    tag     = true
   }
 }
 
@@ -54,7 +54,7 @@ resource "azurerm_storage_account" "tech_test_function_storage" {
   location                 = var.rg_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  tags = var.tags
+  tags                     = var.tags
 }
 
 resource "azurerm_application_insights" "application_insight" {
@@ -89,9 +89,9 @@ data "archive_file" "function_app" {
   type        = "zip"
   source_dir  = "${path.module}/code"
   output_path = "${path.module}/function_app.zip"
-#   depends_on = [
-#     data.local_file.source_code_hash
-#   ]
+  #   depends_on = [
+  #     data.local_file.source_code_hash
+  #   ]
 }
 
 # Upload Function App Code
@@ -111,7 +111,7 @@ resource "azurerm_service_plan" "tech_test_plan" {
   resource_group_name = var.rg_name
   os_type             = "Linux"
   sku_name            = "Y1"
-  tags = var.tags
+  tags                = var.tags
 }
 
 # Function App
@@ -124,7 +124,7 @@ resource "azurerm_linux_function_app" "tech_test_function_app" {
   service_plan_id            = azurerm_service_plan.tech_test_plan.id
   site_config {
     application_stack {
-        python_version = "3.11"
+      python_version = "3.11"
     }
   }
   zip_deploy_file = data.archive_file.function_app.output_path
@@ -134,14 +134,14 @@ resource "azurerm_linux_function_app" "tech_test_function_app" {
     WEBSITE_RUN_FROM_PACKAGE       = "1"
     AzureWebJobsStorage            = azurerm_storage_account.tech_test_function_storage.primary_connection_string
   }
-  tags = var.tags
+  tags       = var.tags
   depends_on = [azurerm_storage_blob.function_zip]
 }
 
 # Event Grid Subscription
 resource "azurerm_eventgrid_event_subscription" "tech_test_event_subscription" {
-  name                 = "tech-test-event-subscription"
-  scope                = azurerm_storage_account.tech_test_sa.id
+  name                  = "tech-test-event-subscription"
+  scope                 = azurerm_storage_account.tech_test_sa.id
   event_delivery_schema = "EventGridSchema"
   included_event_types  = ["Microsoft.Storage.BlobCreated"]
   azure_function_endpoint {

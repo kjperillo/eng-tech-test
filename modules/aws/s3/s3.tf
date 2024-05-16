@@ -1,14 +1,17 @@
+# Description: This file contains the terraform code to create an S3 bucket with versioning enabled 
+# and a bucket policy that denies unencrypted traffic and allows the account owner full access to the bucket.
+
+# Convenience data source to get the current AWS account ID
 data "aws_caller_identity" "current" {}
 
+# S3 bucket for tech test
 resource "aws_s3_bucket" "tech_test_bucket" {
-  bucket = "identify-tech-test"
+  bucket        = "identify-tech-test"
   force_destroy = true
-  tags = {
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags          = var.tags
 }
 
+# Enable versioning on the tech test S3 bucket
 resource "aws_s3_bucket_versioning" "tech_test_bucket_versioning" {
   bucket = aws_s3_bucket.tech_test_bucket.id
   versioning_configuration {
@@ -16,6 +19,7 @@ resource "aws_s3_bucket_versioning" "tech_test_bucket_versioning" {
   }
 }
 
+# Bucket policy for tech test S3 bucket
 resource "aws_s3_bucket_policy" "tech_test_bucket_policy" {
   bucket = aws_s3_bucket.tech_test_bucket.id
   policy = jsonencode({
@@ -25,7 +29,7 @@ resource "aws_s3_bucket_policy" "tech_test_bucket_policy" {
         Action    = "s3:*"
         Effect    = "Deny"
         Principal = "*"
-        Resource  = [
+        Resource = [
           "arn:aws:s3:::identify-tech-test",
           "arn:aws:s3:::identify-tech-test/*"
         ]
@@ -36,8 +40,8 @@ resource "aws_s3_bucket_policy" "tech_test_bucket_policy" {
         }
       },
       {
-        Action    = "s3:*"
-        Effect    = "Allow"
+        Action = "s3:*"
+        Effect = "Allow"
         Principal = {
           AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         }
@@ -50,13 +54,14 @@ resource "aws_s3_bucket_policy" "tech_test_bucket_policy" {
   })
 }
 
+# Output the ARN and ID of the tech test S3 bucket
 output "tech_test_bucket_arn" {
-  value = aws_s3_bucket.tech_test_bucket.arn
+  value       = aws_s3_bucket.tech_test_bucket.arn
   description = "The ARN of the tech test S3 bucket"
 }
 
 output "tech_test_bucket_id" {
-  value = aws_s3_bucket.tech_test_bucket.id
+  value       = aws_s3_bucket.tech_test_bucket.id
   description = "The ID of the tech test S3 bucket"
-  
+
 }

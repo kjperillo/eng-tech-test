@@ -4,7 +4,7 @@ variable "rg_location" {
 
 variable "rg_name" {
   type = string
-  
+
 }
 
 variable "tags" {
