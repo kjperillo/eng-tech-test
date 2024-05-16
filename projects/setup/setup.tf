@@ -1,9 +1,6 @@
 resource "aws_s3_bucket" "backend_bucket" {
   bucket = "kperillo-terraform-backend"
-  tags = {
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
 
 resource "aws_s3_bucket_acl" "backend_bucket_acl" {
@@ -28,8 +25,5 @@ resource "aws_dynamodb_table" "lock_table" {
     type = "S"
   }
 
-  tags = {
-    Client  = "iDentify"
-    Project = "identify-tech-test"
-  }
+  tags = var.tags
 }
