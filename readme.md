@@ -8,6 +8,9 @@ Next do terraform init / plan / apply from projects/aws and projects/azure.
 For the AWS code there are three modules, aws/lambda, aws/s3 and aws/vpc.
 For the Azure code, there are two modules, azure/function and azure/vnet.
 
+I used clockify (free online time tracker) to record my work.  See detailed report pdf in this directory.  I put about 6.5 hours into, 
+but it seems like of that was in documenting, refactoring, making the code prettier, etc.
+
 Note, AWS code is fully functional and tested.  
 On the Azure side, everything gets created fine, but there is an issue with the Blob upload trigger not firing the python function.  I would need to do some further research here and rework it a bit to get it 100% functional.  However, I don't want to hold up the review process and hopefully there is enough here to inspire confidence.
 
