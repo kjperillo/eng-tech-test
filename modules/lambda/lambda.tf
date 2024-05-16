@@ -127,7 +127,7 @@ resource "aws_s3_bucket_policy" "update_bucket_policy" {
         Effect = "Allow"
         Action = "s3:GetObject"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lambda_exec_role"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/file_echo_exec_role"
         }
         Resource = [
           "${var.tech_test_bucket_arn}/*"
